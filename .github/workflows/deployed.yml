@@ -40,7 +40,6 @@ jobs:
       - name: Trivy Image Scan
         run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimage.txt
 
-      # ✅ Slack Notification (Build Stage)
       - name: Slack Notification - Build Stage
         if: always()
         uses: act10ns/slack@v1
@@ -62,10 +61,15 @@ jobs:
       - name: Trivy Image Scan (Deploy Stage)
         run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimagedeploy.txt
 
-      - name: Deploy Container
+      # ✅ Fix: Handle port 3000 conflict
+      - name: Cleanup existing containers using port 3000
         run: |
           docker rm -f game || true
-          docker run -d --name game -p 3000:3000 chrajkumar22/tic-tac-toe:latest
+          docker ps -q --filter "publish=3000" | xargs -r docker stop
+          docker ps -aq --filter "publish=3000" | xargs -r docker rm
+
+      - name: Deploy Container
+        run: docker run -d --name game -p 3000:3000 chrajkumar22/tic-tac-toe:latest
 
       - name: Update kubeconfig
         run: aws eks --region us-east-1 update-kubeconfig --name EKS_CLOUD
@@ -73,7 +77,6 @@ jobs:
       - name: Deploy to Kubernetes
         run: kubectl apply -f deployment-service.yml
 
-      # ✅ Slack Notification (Deploy Stage)
       - name: Slack Notification - Deploy Stage
         if: always()
         uses: act10ns/slack@v1
