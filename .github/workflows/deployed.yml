@@ -32,13 +32,13 @@ jobs:
         run: docker build -t tic-tac-toe .
 
       - name: Tag Docker Image
-        run: docker tag tic-tac-toe sevenajay/tic-tac-toe:latest
+        run: docker tag tic-tac-toe chrajkumar22/tic-tac-toe:latest
 
       - name: Push Docker Image
-        run: docker push sevenajay/tic-tac-toe:latest
+        run: docker push chrajkumar22/tic-tac-toe:latest
 
       - name: Trivy Image Scan
-        run: trivy image sevenajay/tic-tac-toe:latest > trivyimage.txt
+        run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimage.txt
 
       # ✅ Slack Notification (Build Stage)
       - name: Slack Notification - Build Stage
@@ -57,15 +57,15 @@ jobs:
 
     steps:
       - name: Pull Docker Image
-        run: docker pull sevenajay/tic-tac-toe:latest
+        run: docker pull chrajkumar22/tic-tac-toe:latest
 
       - name: Trivy Image Scan (Deploy Stage)
-        run: trivy image sevenajay/tic-tac-toe:latest > trivyimagedeploy.txt
+        run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimagedeploy.txt
 
       - name: Deploy Container
         run: |
           docker rm -f game || true
-          docker run -d --name game -p 3000:3000 sevenajay/tic-tac-toe:latest
+          docker run -d --name game -p 3000:3000 chrajkumar22/tic-tac-toe:latest
 
       - name: Update kubeconfig
         run: aws eks --region us-east-1 update-kubeconfig --name EKS_CLOUD
