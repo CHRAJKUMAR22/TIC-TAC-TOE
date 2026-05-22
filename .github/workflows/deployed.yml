@@ -25,4 +25,33 @@ jobs:
       - name: Trivy file scan
         run: trivy fs . > trivyfs.txt
 
+      - name: Docker Login (Non-interactive)
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+      - name: Build Docker Image
+        run: docker build -t tic-tac-toe .
+
+      - name: Tag Image
+        run: docker tag tic-tac-toe chrajkumar22/tic-tac-toe:latest
+
+      - name: Push Docker Image
+        run: docker push chrajkumar22/tic-tac-toe:latest
+
+      - name: Trivy image scan
+        run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimage.txt
+
+  deploy:
+    needs: build-analyze-scan
+    runs-on: Eks githubactions-eks
+
+    steps:
+      - name: Pull Docker Image
+        run: docker pull chrajkumar22/tic-tac-toe:latest
+
+      - name: Trivy image scan (deploy stage)
+        run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimagedeploy.txt
+
+      - name: Deploy container
+        run: |
+          docker rm -f gameapp || true
+          docker run -d --name gameapp -p 3000:3000 chrajkumar22/tic-tac-toe:latest
