@@ -37,3 +37,6 @@ jobs:
 
       - name: Push Docker Image
         run: docker push chrajkumar22/tic-tac-toe:latest
+
+       - name: trivy image scan
+        run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimage.txt
