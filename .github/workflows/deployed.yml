@@ -8,40 +8,15 @@ on:
 jobs:
   build-analyze-scan:
     name: Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Remove old container
+      - name: Verify runner
         run: |
-          docker stop game || true
-          docker rm game || true
+          echo "GitHub Hosted Runner Working"
 
-      - name: Update kubeconfig
-        run: |
-          aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -f deployment-service.yml
-
-      - name: Verify Pods
-        run: |
-          kubectl get pods
-          kubectl get svc
-
-      - name: Send Slack Notification
-        if: always()
-        uses: act10ns/slack@v1
-
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: '#githubactions-eks'
-
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Docker version
+        run: docker --version
