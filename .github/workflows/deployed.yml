@@ -25,7 +25,6 @@ jobs:
       - name: Trivy file scan
         run: trivy fs . > trivyfs.txt
 
-      # ✅ Fix starts here
       - name: Docker Login (Non-interactive)
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -38,5 +37,5 @@ jobs:
       - name: Push Docker Image
         run: docker push chrajkumar22/tic-tac-toe:latest
 
-       - name: trivy image scan
+      - name: Trivy image scan
         run: trivy image chrajkumar22/tic-tac-toe:latest > trivyimage.txt
